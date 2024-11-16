@@ -37,13 +37,15 @@ class GameEngine:
       # shuffle ordering of players, stick to this round robin order
       random.shuffle(self.players)
 
-      # TODO need to pass in the player
       # TODO: also limit this somewhat? 30 rounds?
       while not self.player_who_called_cabo:
-         self.round()
+         self.round(self.players[0], self.players[0])
       
-      # TODO one more round
-      self.round()
+      # the player who called cabo just went, do one more round starting with the next player until the player who called cabo
+      cabo_index = self.players.index(self.player_who_called_cabo)
+      next_player_index = (cabo_index + 1) % len(self.players)
+      self.round(next_player_index, cabo_index)
+      
       winner, score = self.determineWinner()
       print("Winner: {} with score: {}".format(winner, score))
       
@@ -65,12 +67,18 @@ class GameEngine:
       player.handle_stack(top_card)
    
    # need one more round after cabo is called
-   def round(self):
-      for player in self.players:
+   def round(self, start_player, end_player):
+      start_index = self.players.index(start_player)
+      end_index = self.players.index(end_player)
+      current_index = start_index
+      
+      while current_index != end_index:
+         player = self.players[current_index]
+         print("Player taking turn: {}".format(player))
          called_cabo = player.check_call_cabo()
          if called_cabo:
             self.player_who_called_cabo = player
-            return True
+            return
          
          player.draw(self.deck)
          player.showHand()
@@ -88,8 +96,8 @@ class GameEngine:
          self.check_and_handle_stack(top_card)
          player.showHand()
          
-      return False
-                 
+         current_index = (current_index + 1) % len(self.players)
+
    # TODO maybe should print value for each player 
    def determineWinner(self):
       # player is the one with the lowest hand value;
