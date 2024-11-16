@@ -1,4 +1,4 @@
-from cabo import GameEngine
+from cabo_game_engine import GameEngine
 
 
 def main():

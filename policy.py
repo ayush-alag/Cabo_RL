@@ -3,6 +3,7 @@ import random
 from abc import ABC, abstractmethod
 import typing
 
+# player object is the state
 class Policy(ABC):
    def __init__(self, player):
       self.player = player
@@ -23,8 +24,6 @@ class Policy(ABC):
    def update_policy(self, state, action, reward, next_state):
       raise NotImplementedError("This method should be overridden by subclasses")
 
-# TODO maybe should make the random policy instead of random player?
-# The player object is the state
 class RandomPolicy(Policy):
    def __init__(self, player):
       super().__init__(player)
@@ -34,7 +33,33 @@ class RandomPolicy(Policy):
       return random.choice(self.actions)
 
    @typing.override
+   # fixed policy
    def update_policy(self, player, action, reward, next_state):
+      pass
+
+class ExpertScoreMinimizer(Policy):
+   def __init__(self, player):
+      super().__init__(player)
+
+   # doesn't take into account stack probability at all
+   @typing.override
+   def select_action(self):
+      unknown_cards = [i for i, card in enumerate(self.player.hand) if self not in card.players_that_know_card]
+      if unknown_cards:
+         return "swap,{}".format(unknown_cards[0])
+      
+      # if all cards are known, swap with the lowest card
+      max_card_in_hand = max(self.player.hand)
+      if max_card_in_hand.value > self.drawn_card.value:
+         max_card_index = self.player.hand.index(max(self.player.hand))
+         return "swap,{}".format(max_card_index)
+         
+      # if drawn card is higher than all cards in hand, discard
+      return "discard"
+
+   # fixed policy
+   @typing.override
+   def update_policy(self, state, action, reward, next_state):
       pass
 
 class RLPolicy(Policy):

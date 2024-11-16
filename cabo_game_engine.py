@@ -32,6 +32,7 @@ class GameEngine:
       # shuffle ordering of players, stick to this round robin order
       random.shuffle(self.players)
 
+      # TODO need to pass in the player
       # TODO: also limit this somewhat? 30 rounds?
       while not self.player_who_called_cabo:
          self.round()
@@ -39,33 +40,14 @@ class GameEngine:
       # TODO one more round
       self.round()
       winner, score = self.determineWinner()
+      print("Winner: {} with score: {}".format(winner, score))
+      
       # TODO: do something with this information, maybe influence reward
    
-   def handle_stack(self, player):
-      # a) Discard all cards that are ours that match the discarded card
-      for card in player.hand:
-         if self in card.players_that_know_card and card.value == player.drawn_card.value:
-            player.hand.remove(card)
-            player.discardDrawnCard(self.discard_pile)
-
-      # b) Discard all cards that are other players' cards and give them one card from the deck in return + one of our cards
-      for known_player, known_card in player.known_player_cards:
-         if known_card.value == player.drawn_card.value:
-            player.known_player_cards.remove((known_player, known_card))
-            new_card = self.deck.drawCard()
-            known_player.hand.append(new_card)
-            # choose a random card from our hand and give it to the player
-            random_card = random.choice(player.hand)
-            player.hand.remove(random_card)
-            known_player.hand.append(random_card)
-            # add this to the known cards
-            if random_card.is_value_known:
-               player.known_player_cards.append((known_player, random_card))
-   
-   def check_and_handle_stack(self):
+   def check_and_handle_stack(self, top_card):
       stack_players = []
       for player in self.players:
-         if player.canStack():
+         if player.canStack(top_card):
             stack_players.append(player)
       
       if len(stack_players) > 0:
@@ -75,7 +57,7 @@ class GameEngine:
       
       # choose a random player to stack
       player = random.choice(stack_players)
-      self.handle_stack(player)
+      player.handle_stack(top_card)
    
    # need one more round after cabo is called
    def round(self):
@@ -97,7 +79,8 @@ class GameEngine:
             assert False, "Invalid action"
          # TODO: need to add powers maybe not in v1 though?
          
-         self.check_and_handle_stack()
+         top_card = self.discard_pile.top_of_discard()
+         self.check_and_handle_stack(top_card)
          player.showHand()
                  
    # TODO maybe should print value for each player 
