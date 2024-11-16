@@ -79,7 +79,12 @@ class Player():
       return self.policy.select_action()
 
    def canStack(self, top_card):
+      if self.called_cabo:
+         return False
+
       def checkStackPlayer(player):
+         if player.called_cabo:
+            return False
          for card in player.hand:
             # if the value is known, we can stack
             if self in card.players_that_know_card:
@@ -88,7 +93,7 @@ class Player():
                
       # check all players including ourselves
       for player in self.other_players + [self]:
-         if checkStackPlayer(player, top_card):
+         if checkStackPlayer(player):
             return True
       return False
    
@@ -107,6 +112,9 @@ class Player():
    
    # we get to stack
    def handle_stack(self, top_card):
+      if self.called_cabo:
+         return
+
       # a) Discard all cards that are ours that match the discarded card
       for card in self.hand:
          if self in card.players_that_know_card and card.value == top_card.value:
@@ -117,6 +125,9 @@ class Player():
       # b) Discard all cards that are other players' cards and 
       # give them one card from the deck in return + one of our cards
       for player in self.other_players:
+         if player.called_cabo:
+            continue
+
          for card in player.hand:
             if self in card.players_that_know_card and card.value == top_card.value:
                player.discardHandCard(card)

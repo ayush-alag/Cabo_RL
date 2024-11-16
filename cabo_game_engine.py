@@ -87,6 +87,8 @@ class GameEngine:
          top_card = self.discard_pile.top_of_discard()
          self.check_and_handle_stack(top_card)
          player.showHand()
+         
+      return False
                  
    # TODO maybe should print value for each player 
    def determineWinner(self):
