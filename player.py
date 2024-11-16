@@ -1,11 +1,10 @@
 import random
 
 class Player():
-   def __init__(self, name, policy, game_engine):
+   def __init__(self, name, policy):
       self.name = name
       self.hand = []
       self.policy = policy
-      self.game_engine = game_engine
       
       self.drawn_card = None
       self.called_cabo = False

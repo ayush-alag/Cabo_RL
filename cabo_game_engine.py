@@ -4,14 +4,22 @@ from deck import DiscardPile, Deck
 
 class GameEngine:
    # TODO pass in players?
-   def __init__(self):
+   def __init__(self, players):
       self.deck = Deck()
       self.discard_pile = DiscardPile()
-      self.players = []
       self.player_who_called_cabo = None
+      self.initializePlayers()
+      
+   def initializePlayers(self):
+      for player in self.players:
+         self.addPlayer(player)
       
    def addPlayer(self, player):
+      player.game_engine = self
       self.players.append(player)
+                  
+      for player in self.players:
+         player.other_players = [p for p in self.players if p != player]
       
    # start with four cards
    def deal(self):
@@ -25,9 +33,6 @@ class GameEngine:
    def play(self):
       self.deck.shuffle()
       self.deal()
-            
-      for player in self.players:
-         player.other_players = [p for p in self.players if p != player]
       
       # shuffle ordering of players, stick to this round robin order
       random.shuffle(self.players)

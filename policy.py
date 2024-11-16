@@ -67,8 +67,8 @@ class RLPolicy(Policy):
       super().__init__(player)
 
    # TODO: implement this (epsilon greedy?)
-   # maybe a neural network
-   def select_action(self, state):
+   # maybe a neural network  that takes the current state and outputs an action
+   def select_action(self):
       pass
 
    # TODO: implement this (epsilon greedy?)
