@@ -1,14 +1,11 @@
-import random
-from abc import ABC, abstractmethod
-import typing
-
-class Player(ABC):
-   def __init__(self, name):
+class Player():
+   def __init__(self, name, policy):
       self.name = name
       self.hand = []
       self.drawn_card = None
       self.called_cabo = False
       self.other_players = []
+      self.policy = policy
    
    def __str__(self):
       return self.name
@@ -74,9 +71,8 @@ class Player(ABC):
       self.called_cabo = True
       return True
       
-   @abstractmethod
    def decideAction(self):
-      raise NotImplementedError("This method should be overridden by subclasses")
+      return self.policy.select_action()
 
    def canStack(self):
       def checkStackPlayer(player, topCard):
@@ -92,23 +88,3 @@ class Player(ABC):
          if checkStackPlayer(player, top):
             return True
       return False
-   
-# player should be an abstract class. make RandomPlayer and PolicyPlayer subclasses
-class RandomPlayer(Player):
-   @typing.override
-   def decideAction(self):
-      actions = ["discard"]
-      # append swap,index for each card in the hand
-      for i in range(len(self.hand)):
-         actions.append("swap,{}".format(i))
-      return random.choice(actions)
-
-# TODO define policy
-class PolicyPlayer(Player):
-   def __init__(self, name, policy):
-      super().__init__(name)
-      self.policy = policy
-
-   @typing.override
-   def decideAction(self):
-      return self.policy.decideAction(self)
