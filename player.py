@@ -15,16 +15,14 @@ class Player():
       
    def draw(self):
       self.drawn_card = self.game_engine.deck.drawCard()
+      self.drawn_card.players_that_know_card.append(self)
+      print("Player {} drew: {}".format(self.name, self.drawn_card))
    
    def showHand(self, player):
-      print(player)
-      for card in player.hand:
-         # only show value if it is known
-         if self in card.players_that_know_card:
-            card.show()
-         else:
-            print("Unknown")
-   
+      print("Player's cards: " + 
+            ", ".join([str(card) if self in card.players_that_know_card
+                      else "Unknown" for card in player.hand]))
+
    def showPlayerInfo(self):
       print("Player: {}".format(self.name))
       print("Hand:")
@@ -40,10 +38,13 @@ class Player():
          self.showHand(player)
    
    def swapDrawnCard(self, index):
+      self.showHand(self)
       self.hand.append(self.drawn_card)
       self.drawn_card = None
       discard_card = self.hand.pop(index)
-      self.discardDrawnCard(discard_card)
+      print(discard_card)
+      self.game_engine.discard_pile.discard(discard_card)
+      self.showHand(self)
          
    def discardDrawnCard(self):
       self.game_engine.discard_pile.discard(self.drawn_card)
@@ -76,7 +77,7 @@ class Player():
       return True
       
    def decideAction(self):
-      return self.policy.select_action()
+      return self.policy.select_action(self.policy, self)
 
    def canStack(self, top_card):
       if self.called_cabo:

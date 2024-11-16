@@ -8,8 +8,8 @@ class Card:
       self.value = self.get_value()
       self.players_that_know_card = []
 
-   def show(self):
-      print("{} of {}".format(self.value, self.suit))
+   def __str__(self):
+      return f"{self.nominal_value} of {self.suit}"
    
    def get_king_value(self):
       # if its a black king, it is worth 13, otherwise -1
