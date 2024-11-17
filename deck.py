@@ -35,8 +35,9 @@ class Card:
       self.players_that_know_card.append(player)
       
 class Deck:
-   def __init__(self):
+   def __init__(self, discard_pile):
       self.cards = []
+      self.discard_pile = discard_pile
       self.build()
 
    def build(self):

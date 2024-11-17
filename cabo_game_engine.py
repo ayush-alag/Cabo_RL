@@ -5,8 +5,8 @@ from deck import DiscardPile, Deck
 class GameEngine:
    # TODO pass in players?
    def __init__(self, players):
-      self.deck = Deck()
       self.discard_pile = DiscardPile()
+      self.deck = Deck(self.discard_pile)
       self.player_who_called_cabo = None
       self.initializePlayers(players)
       
@@ -53,17 +53,7 @@ class GameEngine:
       previous_cabo_player = (cabo_index - 1) % len(self.players)
       self.round(next_player_index, previous_cabo_player)
       
-      print("\nGame Over!\n")
-      winner, score = self.determineWinner()
-      print("Winner: {} with score: {}".format(winner.name, score))
-      winner.showHand(winner)
-      for player in self.players:
-         if player != winner:
-            score = sum([card.value for card in player.hand])
-            print("Player: {} with score: {}".format(player.name, score))
-            player.showHand(player)
-      
-      # TODO: do something with this information, maybe influence reward
+      return self.players
    
    def check_and_handle_stack(self, top_card):
       stack_players = []
@@ -117,19 +107,3 @@ class GameEngine:
       
       # once more for end index
       self.playerTurn(self.players[current_index])
-
-   # TODO maybe should print value for each player 
-   def determineWinner(self):
-      # player is the one with the lowest hand value;
-      # if there's a tie, the one who called cabo wins
-      lowest = float("inf")
-      winner = None
-      for player in self.players:
-         hand_value = sum([card.value for card in player.hand])
-         if hand_value < lowest:
-            lowest = hand_value
-            winner = player
-         elif hand_value == lowest and player.called_cabo:
-            winner = player
-      
-      return winner, lowest
