@@ -32,18 +32,20 @@ class GameEngine:
    def play(self):
       self.deck.shuffle()
       self.deal()
+               
+      random.shuffle(self.players)
       
       # shuffle ordering of players, stick to this round robin order
       print("Ordering of players: " + ", ".join([player.name for player in self.players]))
-         
-      random.shuffle(self.players)
 
       # TODO: also limit this somewhat? 30 rounds?
       round_idx = 1
       while not self.player_who_called_cabo:
-         print("Round: {}".format(round_idx))
-         self.round(self.players[0], self.players[-1])
+         print("\nRound: {}".format(round_idx))
+         self.round(0, len(self.players) - 1)
          round_idx += 1
+         
+      print("\nCABO CALLED BY {}!\n".format(self.player_who_called_cabo))
       
       # the player who called cabo just went, do one more round starting with the next player until the player who called cabo
       cabo_index = self.players.index(self.player_who_called_cabo)
@@ -51,8 +53,15 @@ class GameEngine:
       previous_cabo_player = (cabo_index - 1) % len(self.players)
       self.round(next_player_index, previous_cabo_player)
       
+      print("\nGame Over!\n")
       winner, score = self.determineWinner()
-      print("Winner: {} with score: {}".format(winner, score))
+      print("Winner: {} with score: {}".format(winner.name, score))
+      winner.showHand(winner)
+      for player in self.players:
+         if player != winner:
+            score = sum([card.value for card in player.hand])
+            print("Player: {} with score: {}".format(player.name, score))
+            player.showHand(player)
       
       # TODO: do something with this information, maybe influence reward
    
@@ -88,6 +97,7 @@ class GameEngine:
          player.swapDrawnCard(index)
       else:
          assert False, "Invalid action"
+      player.showHand(player)
       
       # handle stack
       top_card = self.discard_pile.top_of_discard()
@@ -96,11 +106,8 @@ class GameEngine:
       return False
    
    # start to end player (inclusive)
-   def round(self, start_player, end_player):
-      start_index = self.players.index(start_player)
-      end_index = self.players.index(end_player)
+   def round(self, start_index, end_index):
       current_index = start_index
-      
       while current_index != end_index:
          called_cabo = self.playerTurn(self.players[current_index])
          if called_cabo:

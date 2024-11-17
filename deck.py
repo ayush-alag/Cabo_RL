@@ -75,6 +75,7 @@ class DiscardPile:
          c.show()
       
    def discard(self, card):
+      print("Discarding: {}".format(card))
       self.cards.append(card)
       
    def top_of_discard(self):

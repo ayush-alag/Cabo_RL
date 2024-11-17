@@ -19,7 +19,7 @@ class Player():
       print("Player {} drew: {}".format(self.name, self.drawn_card))
    
    def showHand(self, player):
-      print("Player's cards: " + 
+      print(player.name + "'s cards: " + 
             ", ".join([str(card) if self in card.players_that_know_card
                       else "Unknown" for card in player.hand]))
 
@@ -38,13 +38,9 @@ class Player():
          self.showHand(player)
    
    def swapDrawnCard(self, index):
-      self.showHand(self)
-      self.hand.append(self.drawn_card)
-      self.drawn_card = None
-      discard_card = self.hand.pop(index)
-      print(discard_card)
+      discard_card = self.hand[index]
+      self.hand[index] = self.drawn_card
       self.game_engine.discard_pile.discard(discard_card)
-      self.showHand(self)
          
    def discardDrawnCard(self):
       self.game_engine.discard_pile.discard(self.drawn_card)
@@ -90,6 +86,7 @@ class Player():
             # if the value is known, we can stack
             if self in card.players_that_know_card:
                if card.value == top_card.value:
+                  print("{} can stack player {} with card: {}".format(self, player, card))
                   return True
                
       # check all players including ourselves
@@ -119,7 +116,6 @@ class Player():
       # a) Discard all cards that are ours that match the discarded card
       for card in self.hand:
          if self in card.players_that_know_card and card.value == top_card.value:
-            self.hand.remove(card)
             self.discardHandCard(card)
             self.showHand(self)
 
