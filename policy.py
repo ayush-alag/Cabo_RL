@@ -35,6 +35,9 @@ class ExpertScoreMinimizer(Policy):
       if unknown_cards:
          return "swap,{}".format(unknown_cards[0])
       
+      if len(player.hand) == 0:
+         return "discard"
+      
       # if all cards are known, swap with the highest card
       max_card_in_hand = max(player.hand, key=lambda card: card.value)
       if max_card_in_hand.value > player.drawn_card.value:

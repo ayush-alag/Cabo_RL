@@ -1,7 +1,7 @@
 import random
 
 class Player():
-   def __init__(self, name, policy):
+   def __init__(self, name, policy, stack_level=5):
       self.name = name
       self.hand = []
       self.policy = policy
@@ -9,6 +9,7 @@ class Player():
       self.drawn_card = None
       self.called_cabo = False
       self.other_players = []
+      self.stack_level = stack_level
    
    def __str__(self):
       return self.name
@@ -48,6 +49,9 @@ class Player():
    
    # hardcoding this for simplicity
    def check_call_cabo(self):
+      if len(self.hand) == 0:
+         return True
+      
       def expected_value(player):
          ev = 0
          for card in player.hand:
@@ -104,6 +108,9 @@ class Player():
       self.hand.append(self.game_engine.deck.drawCard())
    
    def giveRandomCard(self, player):
+      if len(self.hand) == 0:
+         return
+      
       card = random.choice(self.hand)
       self.hand.remove(card)
       player.hand.append(card)

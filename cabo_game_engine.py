@@ -64,8 +64,10 @@ class GameEngine:
       if len(stack_players) > 0:
          print("Stack! Contesting players: " + " ".join([player.name for player in stack_players]))
          
-         # choose a random player to stack
-         player = random.choice(stack_players)
+         # choose a player to stack proportionally to their stack_level
+         total_stack_level = sum(player.stack_level for player in stack_players)
+         probabilities = [player.stack_level / total_stack_level for player in stack_players]
+         player = random.choices(stack_players, weights=probabilities, k=1)[0]
          player.handle_stack(top_card)
    
    def playerTurn(self, player):
