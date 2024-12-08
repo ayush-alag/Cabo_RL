@@ -1,17 +1,17 @@
 from collections import defaultdict
 from cabo_game_engine import GameEngine
 from player import Player
-from policy import RandomPolicy, ExpertScoreMinimizer, RLPolicy
+from policy import RandomPolicy, ExpertScoreMinimizer, RLPolicy, Holder
 
 def full_game_sim():
    # add RL agent here
    # players = [Player("random1", RandomPolicy),
    #            Player("random2", RandomPolicy),
    #            Player("expert", ExpertScoreMinimizer)]
-   players = [Player("high latency", ExpertScoreMinimizer, stack_level=2),
-              Player("medium latency", ExpertScoreMinimizer, stack_level=5),
-              Player("low latency", ExpertScoreMinimizer, stack_level=8),
-              Player("very low latency", ExpertScoreMinimizer, stack_level=11)]
+   # players = [Player("high latency", ExpertScoreMinimizer, stack_level=2),
+   #            Player("medium latency", ExpertScoreMinimizer, stack_level=5),
+   #            Player("low latency", ExpertScoreMinimizer, stack_level=8),
+   #            Player("very low latency", ExpertScoreMinimizer, stack_level=11)]
    # players = [Player("first_player", ExpertScoreMinimizer),
    #            Player("second_player", ExpertScoreMinimizer),
    #            Player("third_player", ExpertScoreMinimizer),
@@ -20,6 +20,16 @@ def full_game_sim():
    #            Player("sixth_player", ExpertScoreMinimizer),
    #            Player("seventh_player", ExpertScoreMinimizer),
    #            Player("eighth_player", ExpertScoreMinimizer)]
+   players = [Player("first_player", ExpertScoreMinimizer),
+              Player("second_player", ExpertScoreMinimizer),
+              Player("third_player", ExpertScoreMinimizer),
+              Player("fourth_player", ExpertScoreMinimizer),
+              Player("fifth_player", ExpertScoreMinimizer),
+              Player("holder", Holder)]
+   # players = [Player("first_player", RandomPolicy),
+   #            Player("second_player", Holder),
+   #            Player("third_player", Holder),
+   #            Player("fourth_player", Holder)]
    
    game = GameEngine(players)
    end_state_players = game.play()

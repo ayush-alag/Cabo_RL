@@ -51,6 +51,53 @@ class ExpertScoreMinimizer(Policy):
    def update_policy(self, state, action, reward, next_state):
       pass
 
+class Holder(Policy):
+   def select_action(self, player):
+      unknown_cards = [i for i, card in enumerate(player.hand) if player not in card.players_that_know_card]
+      if unknown_cards:
+         return "swap,{}".format(unknown_cards[0])
+      
+      if len(player.hand) == 0:
+         return "discard"
+      
+      # if card is greater than 7 hold it
+      bad_card_values = [3, 4, 5, 6]
+      if player.drawn_card.value in bad_card_values:
+         return "discard"
+
+      swap_idx = None
+      for bad_card in bad_card_values:
+         for i, card in enumerate(player.hand):
+            if card.value == bad_card:
+               swap_idx = i
+               continue
+
+      if swap_idx:
+         return "swap,{}".format(swap_idx)
+
+      # at this point, the drawn card is not a bad card and we don't have any bad cards in system
+      # move towards the extremes
+      if player.drawn_card.value < 3:
+         max_low_card = -1
+         for i, card in enumerate(player.hand):
+            if card.value < 3 and card.value > max_low_card:
+               swap_idx = i
+
+      if player.drawn_card.value > 6:
+         min_high_card = 10000
+         for i, card in enumerate(player.hand):
+            if card.value > 6 and card.value < min_high_card:
+               swap_idx = i
+
+      if swap_idx:
+         return "swap,{}".format(swap_idx)
+      
+      return "discard"
+
+   # fixed policy
+   def update_policy(self, state, action, reward, next_state):
+      pass
+
 class RLPolicy(Policy):
    # TODO: implement this (epsilon greedy?)
    # maybe a neural network  that takes the current state and outputs an action
