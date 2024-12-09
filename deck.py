@@ -10,6 +10,9 @@ class Card:
 
    def __str__(self):
       return f"{self.nominal_value} of {self.suit}"
+
+   def full_print(self):
+      return f"{self.nominal_value} of {self.suit} with {self.value} and {self.players_that_know_card}"
    
    def get_king_value(self):
       # if its a black king, it is worth 13, otherwise -1
@@ -37,15 +40,16 @@ class Card:
    def clone(self):
       card = Card(self.suit, self.nominal_value)
       card.value = self.value
-      card.players_that_know_card = self.players_that_know_card
+      card.players_that_know_card = self.players_that_know_card.copy()
       # must set players that know card outside
       return card
       
 class Deck:
-   def __init__(self, discard_pile):
+   def __init__(self, discard_pile, build=True):
       self.cards = []
       self.discard_pile = discard_pile
-      self.build()
+      if build:
+         self.build()
 
    def build(self):
       for s in ["Spades", "Clubs", "Diamonds", "Hearts"]:
@@ -56,8 +60,9 @@ class Deck:
             self.cards.append(Card(s, v))
 
    def show(self):
+      print("\nDeck")
       for c in self.cards:
-         c.show()
+         print(c)
 
    def shuffle(self):
       for i in range(len(self.cards) - 1, 0, -1):
@@ -75,9 +80,9 @@ class Deck:
       return self.cards.pop()
 
    def clone(self, discard_pile):
-      cloned_deck = Deck(discard_pile)
+      cloned_deck = Deck(discard_pile.clone(), build=False)
       for card in self.cards:
-         cloned_deck.cards.append(card.copy())
+         cloned_deck.cards.append(card.clone())
       return cloned_deck
    
 class DiscardPile:
@@ -85,8 +90,9 @@ class DiscardPile:
       self.cards = []
       
    def show(self):
+      print("\nDiscard Pile")
       for c in self.cards:
-         c.show()
+         print(c)
       
    def discard(self, card):
       print("Discarding: {}".format(card))
@@ -98,5 +104,5 @@ class DiscardPile:
    def clone(self):
       cloned_pile = DiscardPile()
       for card in self.cards:
-         cloned_pile.cards.append(card.copy())
+         cloned_pile.cards.append(card.clone())
       return cloned_pile

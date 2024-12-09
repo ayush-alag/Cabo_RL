@@ -57,9 +57,11 @@ class GameEngine:
    
    def check_and_handle_stack(self):
       top_card = self.discard_pile.top_of_discard()
+      print("hi", top_card.full_print())
 
       stack_players = []
       for player in self.players:
+         player.showHand(player)
          if player.canStack(top_card):
             stack_players.append(player)
       
@@ -84,7 +86,7 @@ class GameEngine:
          assert False, "Invalid action"
    
    def playerTurn(self, player):
-      print("Player taking turn: {}".format(player))
+      print("\nPlayer taking turn: {}".format(player))
       called_cabo = player.check_call_cabo()
       if called_cabo:
          self.player_who_called_cabo = player

@@ -94,50 +94,61 @@ class Holder(Policy):
 
 class MCTSPolicy(Policy):
    class GameState:
-      def __init__(self, game_engine, current_player_index):
+      def __init__(self, game_engine, current_player):
          self.game_engine = game_engine
-         self.current_player_index = current_player_index
+         self.current_player = current_player
 
-      def is_terminal(self):
+      def isTerminal(self):
          return bool(self.game_engine.player_who_called_cabo)
 
       def get_reward(self):
          # Example: Reward is based on the final score of the current player
-         current_player = self.game_engine.players[self.current_player_index]
-         return -current_player.expected_value(current_player)
+         return -self.current_player.expected_value(self.current_player)
 
-      def get_legal_actions(self):
+      def getPossibleActions(self):
          # Get actions for the current player
-         current_player = self.game_engine.players[self.current_player_index]
-         return current_player.get_actions()
+         return self.current_player.get_actions()
 
-      def perform_action(self, action):
+      def takeAction(self, action):
+         print("\nTaking Action", action)
          # Clone the game state
+         current_player_index = None
+         for i, player in enumerate(self.game_engine.players):
+            if player == self.current_player:
+               current_player_index = i
+
+         # clones players, engine, discard pile, and then deck
          cloned_engine = self.game_engine.clone()
-         cloned_current_player = cloned_engine.players[self.current_player_index]
+         cloned_current_player = cloned_engine.players[current_player_index]
 
          # Perform the action for the current player
+         print("\nDEBUG\n")
+         for player in cloned_engine.players:
+            player.showHand(player)
          cloned_engine.handleAction(cloned_current_player, action)
+         print(cloned_engine.discard_pile.cards)
          cloned_engine.check_and_handle_stack()
 
          # Simulate other players' turns
-         next_player_index = (self.current_player_index + 1) % len(cloned_engine.players)
-         while next_player_index != self.current_player_index:
+         next_player_index = (current_player_index + 1) % len(cloned_engine.players)
+         while next_player_index != current_player_index:
             opponent = cloned_engine.players[next_player_index]
-            opponent_action = opponent.policy.select_action(opponent)
-            cloned_engine.handleAction(opponent, opponent_action)
-            cloned_engine.check_and_handle_stack()
+            cloned_engine.playerTurn(opponent)
             next_player_index = (next_player_index + 1) % len(cloned_engine.players)
+         
+         called_cabo = cloned_current_player.check_call_cabo()
+         if called_cabo:
+            self.player_who_called_cabo = cloned_current_player
 
          # Return the next game state
-         return MCTSPolicy.GameState(cloned_engine, next_player_index)
+         return MCTSPolicy.GameState(cloned_engine, cloned_engine.players[next_player_index])
 
    def __init__(self, simulation_time=1000):
       self.simulation_time = simulation_time  # Time for MCTS simulations in milliseconds
 
    def select_action(self, player):
       initial_state = MCTSPolicy.GameState(player.game_engine, player)
-      searcher = mcts(time_limit=self.simulation_time)
+      searcher = mcts(timeLimit=self.simulation_time)
       best_action = searcher.search(initial_state)
       return best_action
 
