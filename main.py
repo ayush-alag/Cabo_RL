@@ -40,7 +40,7 @@ def full_game_sim():# Example setup
    player_to_score = {player: sum([card.value for card in player.hand]) for player in end_state_players}
    return winner, player_to_score
 
-def run_simulations(num_simulations=10):
+def run_simulations(num_simulations=1):
    winner_counts = defaultdict(int)
    total_score = defaultdict(int)
    

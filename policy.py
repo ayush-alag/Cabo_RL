@@ -136,8 +136,9 @@ class MCTSPolicy(Policy):
          
          called_cabo = cloned_current_player.check_call_cabo()
          if called_cabo:
-            self.player_who_called_cabo = cloned_current_player
-            self.game_engine.game_over = True
+            self.game_engine.player_who_called_cabo = cloned_current_player
+         if self.game_engine.player_who_called_cabo:
+            cloned_engine.game_over = True
          cloned_current_player.draw()
 
          # Return the next game state

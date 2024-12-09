@@ -110,6 +110,7 @@ class GameEngine:
       cloned_engine.discard_pile = self.discard_pile.clone()
       cloned_engine.deck = self.deck.clone(cloned_engine.discard_pile)
       cloned_engine.player_who_called_cabo = self.player_who_called_cabo
+      cloned_engine.game_over = self.game_over
       return cloned_engine
    
    # start to end player (inclusive)
