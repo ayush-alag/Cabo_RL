@@ -47,25 +47,33 @@ class Player():
       self.game_engine.discard_pile.discard(self.drawn_card)
       self.drawn_card = None
    
+   def expected_value(self, player):
+      ev = 0
+      for card in player.hand:
+         if self in card.players_that_know_card:
+            ev += card.value
+         else:
+            # doesn't take into account known cards' probabilities but that's fine for now
+            ev += 6.5
+            
+      return ev
+   
+   def get_actions(self):
+      actions = ["discard"]
+      # append swap,index for each card in the hand
+      for i in range(len(self.hand)):
+         actions.append("swap,{}".format(i))
+      return actions
+
+      
    # hardcoding this for simplicity
    def check_call_cabo(self):
       if len(self.hand) == 0:
          return True
       
-      def expected_value(player):
-         ev = 0
-         for card in player.hand:
-            if self in card.players_that_know_card:
-               ev += card.value
-            else:
-               # doesn't take into account known cards' probabilities but that's fine for now
-               ev += 6.5
-               
-         return ev
-      
-      my_ev = expected_value(self)
+      my_ev = self.expected_value(self)
       for player in self.other_players:   
-         if expected_value(player) < my_ev:
+         if self.expected_value(player) < my_ev:
             return False
          
       # can only call cabo if have less than 2 cards or score <= 3
@@ -141,3 +149,17 @@ class Player():
                self.giveRandomCard(player)
                self.showHand(self)
                self.showHand(player)
+
+   def clone(self):
+      cloned_player = Player(self.name, self.policy)
+      for card in self.hand:
+         cloned_card = card.clone()
+         if self in card.players_that_know_card:
+            cloned_card.player_knows_me(cloned_player)
+         cloned_player.hand.append(cloned_card)
+      
+      if self.drawn_card:
+         cloned_player.drawn_card = self.drawn_card.clone()
+      cloned_player.called_cabo = self.called_cabo
+      cloned_player.stack_level = self.stack_level
+      return cloned_player

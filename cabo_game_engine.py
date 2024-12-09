@@ -55,7 +55,9 @@ class GameEngine:
       
       return self.players
    
-   def check_and_handle_stack(self, top_card):
+   def check_and_handle_stack(self):
+      top_card = self.discard_pile.top_of_discard()
+
       stack_players = []
       for player in self.players:
          if player.canStack(top_card):
@@ -69,6 +71,17 @@ class GameEngine:
          probabilities = [player.stack_level / total_stack_level for player in stack_players]
          player = random.choices(stack_players, weights=probabilities, k=1)[0]
          player.handle_stack(top_card)
+
+   def handleAction(self, player, action):
+      if action == "discard":
+         print("Discarding drawn card")
+         player.discardDrawnCard()
+      elif action.startswith("swap"):
+         index = int(action.split(",")[1])
+         print("Swapping card at index: {}".format(index))
+         player.swapDrawnCard(index)
+      else:
+         assert False, "Invalid action"
    
    def playerTurn(self, player):
       print("Player taking turn: {}".format(player))
@@ -80,22 +93,22 @@ class GameEngine:
       player.draw()
       player.showHand(player)
       action = player.decideAction()
-      if action == "discard":
-         print("Discarding drawn card")
-         player.discardDrawnCard()
-      elif action.startswith("swap"):
-         index = int(action.split(",")[1])
-         print("Swapping card at index: {}".format(index))
-         player.swapDrawnCard(index)
-      else:
-         assert False, "Invalid action"
+      self.handleAction(player, action)
       player.showHand(player)
-      
-      # handle stack
-      top_card = self.discard_pile.top_of_discard()
-      self.check_and_handle_stack(top_card)
+      self.check_and_handle_stack()
       
       return False
+
+   def clone(self):
+      # Create a deep copy of the GameEngine and its components
+      cloned_players = [player.clone() for player in self.players]
+      # this will set other_players and game_engine in the constructor
+      cloned_engine = GameEngine(cloned_players)
+
+      cloned_engine.discard_pile = self.discard_pile.clone()
+      cloned_engine.deck = self.deck.clone(cloned_engine.discard_pile)
+      cloned_engine.player_who_called_cabo = self.player_who_called_cabo
+      return cloned_engine
    
    # start to end player (inclusive)
    def round(self, start_index, end_index):

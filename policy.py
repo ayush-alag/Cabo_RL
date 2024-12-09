@@ -1,16 +1,10 @@
 # TODO implement this class
 import random
 from abc import ABC, abstractmethod
+from mcts import mcts
 
 # player object is the state
 class Policy(ABC):
-   def get_actions(self, player):
-      actions = ["discard"]
-      # append swap,index for each card in the hand
-      for i in range(len(player.hand)):
-         actions.append("swap,{}".format(i))
-      return actions
-
    @abstractmethod
    def select_action(self, state):
       raise NotImplementedError("This method should be overridden by subclasses")
@@ -21,7 +15,7 @@ class Policy(ABC):
 
 class RandomPolicy(Policy):
    def select_action(self, player):
-      actions = self.get_actions(self, player)
+      actions = player.get_actions()
       return random.choice(actions)
 
    # fixed policy
@@ -98,12 +92,55 @@ class Holder(Policy):
    def update_policy(self, state, action, reward, next_state):
       pass
 
-class RLPolicy(Policy):
-   # TODO: implement this (epsilon greedy?)
-   # maybe a neural network  that takes the current state and outputs an action
-   def select_action(self, player):
-      pass
+class MCTSPolicy(Policy):
+   class GameState:
+      def __init__(self, game_engine, current_player_index):
+         self.game_engine = game_engine
+         self.current_player_index = current_player_index
 
-   # TODO: implement this (epsilon greedy?)
+      def is_terminal(self):
+         return bool(self.game_engine.player_who_called_cabo)
+
+      def get_reward(self):
+         # Example: Reward is based on the final score of the current player
+         current_player = self.game_engine.players[self.current_player_index]
+         return -current_player.expected_value(current_player)
+
+      def get_legal_actions(self):
+         # Get actions for the current player
+         current_player = self.game_engine.players[self.current_player_index]
+         return current_player.get_actions()
+
+      def perform_action(self, action):
+         # Clone the game state
+         cloned_engine = self.game_engine.clone()
+         cloned_current_player = cloned_engine.players[self.current_player_index]
+
+         # Perform the action for the current player
+         cloned_engine.handleAction(cloned_current_player, action)
+         cloned_engine.check_and_handle_stack()
+
+         # Simulate other players' turns
+         next_player_index = (self.current_player_index + 1) % len(cloned_engine.players)
+         while next_player_index != self.current_player_index:
+            opponent = cloned_engine.players[next_player_index]
+            opponent_action = opponent.policy.select_action(opponent)
+            cloned_engine.handleAction(opponent, opponent_action)
+            cloned_engine.check_and_handle_stack()
+            next_player_index = (next_player_index + 1) % len(cloned_engine.players)
+
+         # Return the next game state
+         return MCTSPolicy.GameState(cloned_engine, next_player_index)
+
+   def __init__(self, simulation_time=1000):
+      self.simulation_time = simulation_time  # Time for MCTS simulations in milliseconds
+
+   def select_action(self, player):
+      initial_state = MCTSPolicy.GameState(player.game_engine, player)
+      searcher = mcts(time_limit=self.simulation_time)
+      best_action = searcher.search(initial_state)
+      return best_action
+
    def update_policy(self, state, action, reward, next_state):
+      # MCTS is generally static
       pass

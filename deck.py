@@ -33,6 +33,13 @@ class Card:
    
    def player_knows_me(self, player):
       self.players_that_know_card.append(player)
+
+   def clone(self):
+      card = Card(self.suit, self.nominal_value)
+      card.value = self.value
+      card.players_that_know_card = self.players_that_know_card
+      # must set players that know card outside
+      return card
       
 class Deck:
    def __init__(self, discard_pile):
@@ -66,6 +73,12 @@ class Deck:
          self.shuffle()
          
       return self.cards.pop()
+
+   def clone(self, discard_pile):
+      cloned_deck = Deck(discard_pile)
+      for card in self.cards:
+         cloned_deck.cards.append(card.copy())
+      return cloned_deck
    
 class DiscardPile:
    def __init__(self):
@@ -81,3 +94,9 @@ class DiscardPile:
       
    def top_of_discard(self):
       return self.cards[-1]
+
+   def clone(self):
+      cloned_pile = DiscardPile()
+      for card in self.cards:
+         cloned_pile.cards.append(card.copy())
+      return cloned_pile

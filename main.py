@@ -1,9 +1,38 @@
 from collections import defaultdict
 from cabo_game_engine import GameEngine
 from player import Player
-from policy import RandomPolicy, ExpertScoreMinimizer, RLPolicy, Holder
+from policy import RandomPolicy, ExpertScoreMinimizer, Holder
+from deck import Card
 
-def full_game_sim():
+def full_game_sim():# Example setup
+   player1 = Player("Alice", policy=None)
+   player2 = Player("Bob", policy=None)
+   players = [player1, player2]
+   
+   game_engine = GameEngine(players)
+   player1.game_engine = game_engine
+   player2.game_engine = game_engine
+   player1.other_players = [player2]
+   player2.other_players = [player1]
+   
+   # Populate hands with example cards
+   player1.hand = [Card(5, 5), Card(7, 5)]
+   player2.hand = [Card(8, 5), Card(9, 5)]
+   player1.hand[0].players_that_know_card.append(player1)  # Player1 knows their first card
+   player2.hand[1].players_that_know_card.append(player2)
+   
+   # Clone player1
+   cloned_player1 = player1.clone()
+   cloned_player2 = player2.clone()
+   
+   # Verify cloning
+   cloned_player1.showHand(cloned_player1)
+   cloned_player1.showHand(player2)
+   player2.showHand(player2)
+   player1.showHand(player1)
+   cloned_player2.showHand(player2)
+   return
+
    # add RL agent here
    # players = [Player("random1", RandomPolicy),
    #            Player("random2", RandomPolicy),
@@ -23,8 +52,7 @@ def full_game_sim():
    players = [Player("first_player", ExpertScoreMinimizer),
               Player("second_player", ExpertScoreMinimizer),
               Player("third_player", ExpertScoreMinimizer),
-              Player("fourth_player", ExpertScoreMinimizer),
-              Player("fifth_player", ExpertScoreMinimizer),
+              Player("fourth_player", Holder),
               Player("holder", Holder)]
    # players = [Player("first_player", RandomPolicy),
    #            Player("second_player", Holder),
