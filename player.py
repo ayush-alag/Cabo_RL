@@ -21,10 +21,9 @@ class Player():
       print("Player {} drew: {}".format(self.name, self.drawn_card))
    
    def showHand(self, player):
-      print(self.hand)
       print(player.name + "'s cards: " + 
             ", ".join([str(card) if self in card.players_that_know_card
-                      else "NONE" if not card else "Unknown" for card in player.hand]))
+                      else "Unknown" for card in player.hand]))
 
    def showPlayerInfo(self):
       print("Player: {}".format(self.name))
@@ -90,7 +89,6 @@ class Player():
       return self.policy.select_action(self)
 
    def canStack(self, top_card):
-      print(top_card.full_print())
       if self.called_cabo:
          return False
 
@@ -161,8 +159,6 @@ class Player():
          if self in card.players_that_know_card:
             cloned_card.player_knows_me(cloned_player)
          cloned_player.hand.append(cloned_card)
-      print("\nCloned player:")
-      cloned_player.showHand(cloned_player)
       
       if self.drawn_card:
          cloned_player.drawn_card = self.drawn_card.clone()

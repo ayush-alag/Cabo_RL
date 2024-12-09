@@ -101,7 +101,7 @@ class MCTSPolicy(Policy):
       def isTerminal(self):
          return bool(self.game_engine.player_who_called_cabo)
 
-      def get_reward(self):
+      def getReward(self):
          # Example: Reward is based on the final score of the current player
          return -self.current_player.expected_value(self.current_player)
 
@@ -110,7 +110,6 @@ class MCTSPolicy(Policy):
          return self.current_player.get_actions()
 
       def takeAction(self, action):
-         print("\nTaking Action", action)
          # Clone the game state
          current_player_index = None
          for i, player in enumerate(self.game_engine.players):
@@ -122,11 +121,9 @@ class MCTSPolicy(Policy):
          cloned_current_player = cloned_engine.players[current_player_index]
 
          # Perform the action for the current player
-         print("\nDEBUG\n")
          for player in cloned_engine.players:
             player.showHand(player)
          cloned_engine.handleAction(cloned_current_player, action)
-         print(cloned_engine.discard_pile.cards)
          cloned_engine.check_and_handle_stack()
 
          # Simulate other players' turns
@@ -139,6 +136,7 @@ class MCTSPolicy(Policy):
          called_cabo = cloned_current_player.check_call_cabo()
          if called_cabo:
             self.player_who_called_cabo = cloned_current_player
+         cloned_current_player.draw()
 
          # Return the next game state
          return MCTSPolicy.GameState(cloned_engine, cloned_engine.players[next_player_index])
