@@ -99,7 +99,8 @@ class MCTSPolicy(Policy):
          self.current_player = current_player
 
       def isTerminal(self):
-         return bool(self.game_engine.player_who_called_cabo)
+         # return bool(self.game_engine.player_who_called_cabo)
+         return self.game_engine.game_over
 
       def getReward(self):
          # Example: Reward is based on the final score of the current player
@@ -136,6 +137,7 @@ class MCTSPolicy(Policy):
          called_cabo = cloned_current_player.check_call_cabo()
          if called_cabo:
             self.player_who_called_cabo = cloned_current_player
+            self.game_engine.game_over = True
          cloned_current_player.draw()
 
          # Return the next game state

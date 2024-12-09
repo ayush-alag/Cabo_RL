@@ -8,6 +8,7 @@ class GameEngine:
       self.discard_pile = DiscardPile()
       self.deck = Deck(self.discard_pile)
       self.player_who_called_cabo = None
+      self.game_over = False
       self.initializePlayers(players)
       
    def initializePlayers(self, players):
@@ -52,6 +53,7 @@ class GameEngine:
       next_player_index = (cabo_index + 1) % len(self.players)
       previous_cabo_player = (cabo_index - 1) % len(self.players)
       self.round(next_player_index, previous_cabo_player)
+      self.game_over = True
       
       return self.players
    
